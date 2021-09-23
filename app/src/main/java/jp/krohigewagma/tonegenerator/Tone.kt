@@ -4,6 +4,7 @@ package jp.krohigewagma.tonegenerator
  * 音の定義
  */
 enum class Tone(val oct : Int, val key : Int) {
+    NONE(0, 0),
     C1(1, 1),
     C1s(1, 2),
     D1b(1, 2),

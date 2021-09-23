@@ -3,119 +3,167 @@ package jp.krohigewagma.tonegenerator
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.SeekBar
 import android.widget.Spinner
+import java.util.*
 
 class MainActivity : AppCompatActivity(){
 
     private val toneGenerator = ToneController(22050, 1, 8)
 
-    var level : Int = 0
+    var keyMap = mutableMapOf<Int, MutableList<Int>>()
+
+    var track1Data = listOf<Note>(
+            Note(Tone.E3, 8, 0),
+            Note(Tone.D3, 8, 0),
+            Note(Tone.C3, 8, 0),
+            Note(Tone.B2, 8, 0),
+            Note(Tone.C3, 8, 0),
+            Note(Tone.D3, 8, 0),
+            Note(Tone.E3, 4, 0),
+            Note(Tone.C3, 8, 0),
+            Note(Tone.A2, 4, 0),
+            Note(Tone.A2, 8, 0),
+
+            Note(Tone.A3, 8, 0),
+            Note(Tone.G3, 8, 0),
+            Note(Tone.F3, 8, 0),
+            Note(Tone.D3, 8, 0),
+            Note(Tone.E3, 8, 0),
+            Note(Tone.F3, 8, 0),
+            Note(Tone.E3, 2, 0),
+    )
+    var track2Data = listOf<Note>(
+            Note(Tone.NONE, 8, 2),
+            Note(Tone.C2, 8, 2),
+            Note(Tone.E2, 8, 2),
+
+            Note(Tone.NONE, 8, 2),
+            Note(Tone.C2, 8, 2),
+            Note(Tone.E2, 8, 2),
+
+            Note(Tone.NONE, 8, 2),
+            Note(Tone.C2, 8, 2),
+            Note(Tone.E2, 8, 2),
+
+            Note(Tone.NONE, 8, 2),
+            Note(Tone.C2, 8, 2),
+            Note(Tone.E2, 8, 2),
+
+            Note(Tone.NONE, 8, 2),
+            Note(Tone.A1, 8, 2),
+            Note(Tone.C2, 8, 2),
+
+            Note(Tone.NONE, 8, 2),
+            Note(Tone.B1, 8, 2),
+            Note(Tone.D2, 8, 2),
+
+            Note(Tone.NONE, 8, 2),
+            Note(Tone.E2, 8, 2),
+            Note(Tone.D2, 8, 2),
+
+            Note(Tone.C2, 8, 2),
+            Note(Tone.D2, 8, 2),
+            Note(Tone.B1, 8, 2),
+    )
+
+    var track1Cnt = 0
+    var track2Cnt = 0
+    var isPlay = false
+
+    var step = 60 * 1000 / 120
+
+    private var bgmThrtead : Thread? = null
+
+    var toneMap = mapOf(
+            Pair(R.id.btnC1, Tone.C1),
+            Pair(R.id.btnC1s, Tone.C1s),
+            Pair(R.id.btnD1, Tone.D1),
+            Pair(R.id.btnD1s, Tone.D1s),
+            Pair(R.id.btnE1, Tone.E1),
+            Pair(R.id.btnF1, Tone.F1),
+            Pair(R.id.btnF1s, Tone.F1s),
+            Pair(R.id.btnG1, Tone.G1),
+            Pair(R.id.btnG1s, Tone.G1s),
+            Pair(R.id.btnA1, Tone.A1),
+            Pair(R.id.btnA1s, Tone.A1s),
+            Pair(R.id.btnB1, Tone.B1),
+
+            Pair(R.id.btnC2, Tone.C2),
+            Pair(R.id.btnC2s, Tone.C2s),
+            Pair(R.id.btnD2, Tone.D2),
+            Pair(R.id.btnD2s, Tone.D2s),
+            Pair(R.id.btnE2, Tone.E2),
+            Pair(R.id.btnF2, Tone.F2),
+            Pair(R.id.btnF2s, Tone.F2s),
+            Pair(R.id.btnG2, Tone.G2),
+            Pair(R.id.btnG2s, Tone.G2s),
+            Pair(R.id.btnA2, Tone.A2),
+            Pair(R.id.btnA2s, Tone.A2s),
+            Pair(R.id.btnB2, Tone.B2),
+
+            Pair(R.id.btnC3, Tone.C3),
+            Pair(R.id.btnC3s, Tone.C3s),
+            Pair(R.id.btnD3, Tone.D3),
+            Pair(R.id.btnD3s, Tone.D3s),
+            Pair(R.id.btnE3, Tone.E3),
+            Pair(R.id.btnF3, Tone.F3),
+            Pair(R.id.btnF3s, Tone.F3s),
+            Pair(R.id.btnG3, Tone.G3),
+            Pair(R.id.btnG3s, Tone.G3s),
+            Pair(R.id.btnA3, Tone.A3),
+            Pair(R.id.btnA3s, Tone.A3s),
+            Pair(R.id.btnB3, Tone.B3),
+    )
 
     @SuppressLint("ClickableViewAccessibility")
     private val btnTouchListener = View.OnTouchListener { v, event ->
-        var osc = findViewById<Spinner>(R.id.oscSpinner).selectedItemPosition
+        val osc = when(v.id){
+            R.id.btnC1,R.id.btnC1s,R.id.btnD1,R.id.btnD1s,R.id.btnE1,R.id.btnF1,R.id.btnF1s,R.id.btnG1,R.id.btnG1s,R.id.btnA1, R.id.btnA1s,R.id.btnB1 -> findViewById<Spinner>(R.id.osc1Spinner).selectedItemPosition
+            R.id.btnC2,R.id.btnC2s,R.id.btnD2,R.id.btnD2s,R.id.btnE2,R.id.btnF2,R.id.btnF2s,R.id.btnG2,R.id.btnG2s,R.id.btnA2, R.id.btnA2s,R.id.btnB2 -> findViewById<Spinner>(R.id.osc2Spinner).selectedItemPosition
+            R.id.btnC3,R.id.btnC3s,R.id.btnD3,R.id.btnD3s,R.id.btnE3,R.id.btnF3,R.id.btnF3s,R.id.btnG3,R.id.btnG3s,R.id.btnA3, R.id.btnA3s,R.id.btnB3 -> findViewById<Spinner>(R.id.osc3Spinner).selectedItemPosition
+            else -> 1
+        }
+
+
+        val level = when(v.id){
+            R.id.btnC1,R.id.btnC1s,R.id.btnD1,R.id.btnD1s,R.id.btnE1,R.id.btnF1,R.id.btnF1s,R.id.btnG1,R.id.btnG1s,R.id.btnA1, R.id.btnA1s,R.id.btnB1 -> findViewById<SeekBar>(R.id.osc1Level).progress
+            R.id.btnC2,R.id.btnC2s,R.id.btnD2,R.id.btnD2s,R.id.btnE2,R.id.btnF2,R.id.btnF2s,R.id.btnG2,R.id.btnG2s,R.id.btnA2, R.id.btnA2s,R.id.btnB2 -> findViewById<SeekBar>(R.id.osc2Level).progress
+            R.id.btnC3,R.id.btnC3s,R.id.btnD3,R.id.btnD3s,R.id.btnE3,R.id.btnF3,R.id.btnF3s,R.id.btnG3,R.id.btnG3s,R.id.btnA3, R.id.btnA3s,R.id.btnB3 -> findViewById<SeekBar>(R.id.osc3Level).progress
+            else -> 1
+        }
+
+        if(!keyMap.containsKey(v.id)){
+            keyMap[v.id] = mutableListOf()
+        }
         when(event.action){
             MotionEvent.ACTION_DOWN ->{
-                when(v.id){
-                    R.id.btnC1 -> {
-                        toneGenerator.toneOn(Tone.C1, level, osc)
-                    }
-                    R.id.btnD1 -> {
-                        toneGenerator.toneOn(Tone.D1, level, osc)
-                    }
-                    R.id.btnE1 -> {
-                        toneGenerator.toneOn(Tone.E1, level, osc)
-                    }
-                    R.id.btnF1 -> {
-                        toneGenerator.toneOn(Tone.F1, level, osc)
-                    }
-                    R.id.btnG1 -> {
-                        toneGenerator.toneOn(Tone.G1, level, osc)
-                    }
-
-
-                    R.id.btnC2 -> {
-                        toneGenerator.toneOn(Tone.C2, level, osc)
-                    }
-                    R.id.btnD2 -> {
-                        toneGenerator.toneOn(Tone.D2, level, osc)
-                    }
-                    R.id.btnE2 -> {
-                        toneGenerator.toneOn(Tone.E2, level, osc)
-                    }
-                    R.id.btnF2 -> {
-                        toneGenerator.toneOn(Tone.F2, level, osc)
-                    }
-                    R.id.btnG2 -> {
-                        toneGenerator.toneOn(Tone.G2, level, osc)
-                    }
-
-
-                    R.id.btnC3 -> {
-                        toneGenerator.toneOn(Tone.C3, level, osc)
-                    }
-                    R.id.btnD3 -> {
-                        toneGenerator.toneOn(Tone.D3, level, osc)
-                    }
-                    R.id.btnE3 -> {
-                        toneGenerator.toneOn(Tone.E3, level, osc)
-                    }
-                    R.id.btnF3 -> {
-                        toneGenerator.toneOn(Tone.F3, level, osc)
-                    }
-                    R.id.btnG3 -> {
-                        toneGenerator.toneOn(Tone.G3, level, osc)
-                    }
-
-
-                    R.id.btnC4 -> {
-                        toneGenerator.toneOn(Tone.C4, level, osc)
-                    }
-                    R.id.btnD4 -> {
-                        toneGenerator.toneOn(Tone.D4, level, osc)
-                    }
-                    R.id.btnE4 -> {
-                        toneGenerator.toneOn(Tone.E4, level, osc)
-                    }
-                    R.id.btnF4 -> {
-                        toneGenerator.toneOn(Tone.F4, level, osc)
-                    }
-                    R.id.btnG4 -> {
-                        toneGenerator.toneOn(Tone.G4, level, osc)
-                    }
-
-                    R.id.btnCodeC -> {
-                        toneGenerator.toneOn2(arrayListOf<ToneGenerator>(ToneGenerator(Tone.C3, level, osc), ToneGenerator(Tone.E3, level, osc), ToneGenerator(Tone.G3, level, osc)))
-                    }
-                    R.id.btnCodeD -> {
-                        toneGenerator.toneOn2(arrayListOf<ToneGenerator>(ToneGenerator(Tone.D3, level, osc), ToneGenerator(Tone.F3s, level, osc), ToneGenerator(Tone.A3, level, osc)))
-                    }
-                    R.id.btnCodeE -> {
-                        toneGenerator.toneOn2(arrayListOf<ToneGenerator>(ToneGenerator(Tone.E3, level, osc), ToneGenerator(Tone.G3s, level, osc), ToneGenerator(Tone.B3, level, osc)))
-                    }
-                    R.id.btnCodeF -> {
-                        toneGenerator.toneOn2(arrayListOf<ToneGenerator>(ToneGenerator(Tone.F3, level, osc), ToneGenerator(Tone.A3, level, osc), ToneGenerator(Tone.C4, level, osc)))
-                    }
-                    R.id.btnCodeG -> {
-                        toneGenerator.toneOn2(arrayListOf<ToneGenerator>(ToneGenerator(Tone.G3, level, osc), ToneGenerator(Tone.B3, level, osc), ToneGenerator(Tone.D4, level, osc)))
-                    }
+                if(toneMap.containsKey(v.id)){
+                    var tone = toneMap[v.id]
+                    keyMap[v.id]?.add(toneGenerator.toneOn(tone!!, level, osc))
                 }
             }
             MotionEvent.ACTION_MOVE->{
             }
             MotionEvent.ACTION_UP->{
-                toneGenerator.toneOff()
+                keyMap[v.id]?.forEach {
+                    toneGenerator.toneOff(it)
+                }
             }
             MotionEvent.ACTION_CANCEL->{
-                toneGenerator.toneOff()
+                keyMap[v.id]?.forEach {
+                    toneGenerator.toneOff(it)
+                }
             }
             MotionEvent.ACTION_OUTSIDE->{
-                toneGenerator.toneOff()
+                keyMap[v.id]?.forEach {
+                    toneGenerator.toneOff(it)
+                }
             }
         }
         true
@@ -128,80 +176,136 @@ class MainActivity : AppCompatActivity(){
         adapter.add("sin")
         adapter.add("Square 50%")
         adapter.add("Square 25%")
-        findViewById<Spinner>(R.id.oscSpinner).adapter = adapter
+        adapter.add("Noise")
+        findViewById<Spinner>(R.id.osc1Spinner).adapter = adapter
+        findViewById<Spinner>(R.id.osc2Spinner).adapter = adapter
+        findViewById<Spinner>(R.id.osc3Spinner).adapter = adapter
 
-        findViewById<SeekBar>(R.id.levelBar).setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                level = progress
-            }
+        var ids = arrayListOf(
+                R.id.btnC1,
+                R.id.btnC1s,
+                R.id.btnD1,
+                R.id.btnD1s,
+                R.id.btnE1,
+                R.id.btnF1,
+                R.id.btnF1s,
+                R.id.btnG1,
+                R.id.btnG1s,
+                R.id.btnA1,
+                R.id.btnA1s,
+                R.id.btnB1,
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-            }
+                R.id.btnC2,
+                R.id.btnC2s,
+                R.id.btnD2,
+                R.id.btnD2s,
+                R.id.btnE2,
+                R.id.btnF2,
+                R.id.btnF2s,
+                R.id.btnG2,
+                R.id.btnG2s,
+                R.id.btnA2,
+                R.id.btnA2s,
+                R.id.btnB2,
 
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-            }
-        })
+                R.id.btnC3,
+                R.id.btnC3s,
+                R.id.btnD3,
+                R.id.btnD3s,
+                R.id.btnE3,
+                R.id.btnF3,
+                R.id.btnF3s,
+                R.id.btnG3,
+                R.id.btnG3s,
+                R.id.btnA3,
+                R.id.btnA3s,
+                R.id.btnB3,
+        )
 
-        var btnC1 = findViewById<Button>(R.id.btnC1)
-        var btnD1 = findViewById<Button>(R.id.btnD1)
-        var btnE1 = findViewById<Button>(R.id.btnE1)
-        var btnF1 = findViewById<Button>(R.id.btnF1)
-        var btnG1 = findViewById<Button>(R.id.btnG1)
-
-        var btnC2 = findViewById<Button>(R.id.btnC2)
-        var btnD2 = findViewById<Button>(R.id.btnD2)
-        var btnE2 = findViewById<Button>(R.id.btnE2)
-        var btnF2 = findViewById<Button>(R.id.btnF2)
-        var btnG2 = findViewById<Button>(R.id.btnG2)
-
-        var btnC3 = findViewById<Button>(R.id.btnC3)
-        var btnD3 = findViewById<Button>(R.id.btnD3)
-        var btnE3 = findViewById<Button>(R.id.btnE3)
-        var btnF3 = findViewById<Button>(R.id.btnF3)
-        var btnG3 = findViewById<Button>(R.id.btnG3)
-
-        var btnC4 = findViewById<Button>(R.id.btnC4)
-        var btnD4 = findViewById<Button>(R.id.btnD4)
-        var btnE4 = findViewById<Button>(R.id.btnE4)
-        var btnF4 = findViewById<Button>(R.id.btnF4)
-        var btnG4 = findViewById<Button>(R.id.btnG4)
-
-        var btnCodeC = findViewById<Button>(R.id.btnCodeC)
-        var btnCodeD = findViewById<Button>(R.id.btnCodeD)
-        var btnCodeE = findViewById<Button>(R.id.btnCodeE)
-        var btnCodeF = findViewById<Button>(R.id.btnCodeF)
-        var btnCodeG = findViewById<Button>(R.id.btnCodeG)
-
-        btnC1.setOnTouchListener(btnTouchListener)
-        btnD1.setOnTouchListener(btnTouchListener)
-        btnE1.setOnTouchListener(btnTouchListener)
-        btnF1.setOnTouchListener(btnTouchListener)
-        btnG1.setOnTouchListener(btnTouchListener)
-
-        btnC2.setOnTouchListener(btnTouchListener)
-        btnD2.setOnTouchListener(btnTouchListener)
-        btnE2.setOnTouchListener(btnTouchListener)
-        btnF2.setOnTouchListener(btnTouchListener)
-        btnG2.setOnTouchListener(btnTouchListener)
-
-        btnC3.setOnTouchListener(btnTouchListener)
-        btnD3.setOnTouchListener(btnTouchListener)
-        btnE3.setOnTouchListener(btnTouchListener)
-        btnF3.setOnTouchListener(btnTouchListener)
-        btnG3.setOnTouchListener(btnTouchListener)
+        ids.forEach {
+            var btn = findViewById<Button>(it)
+            btn.setOnTouchListener(btnTouchListener)
+        }
 
 
-        btnC4.setOnTouchListener(btnTouchListener)
-        btnD4.setOnTouchListener(btnTouchListener)
-        btnE4.setOnTouchListener(btnTouchListener)
-        btnF4.setOnTouchListener(btnTouchListener)
-        btnG4.setOnTouchListener(btnTouchListener)
+        findViewById<Button>(R.id.btnPlay).setOnClickListener {
+            track1Cnt = 0
+            track2Cnt = 0
+            isPlay = true
 
-        btnCodeC.setOnTouchListener(btnTouchListener)
-        btnCodeD.setOnTouchListener(btnTouchListener)
-        btnCodeE.setOnTouchListener(btnTouchListener)
-        btnCodeF.setOnTouchListener(btnTouchListener)
-        btnCodeG.setOnTouchListener(btnTouchListener)
+            bgmThrtead = Thread(Runnable {
+                var curNote1 : Note? = null
+                var startNot1 = 0L
+                var curNote2 : Note? = null
+                var startNot2 = 0L
+                keyMap[1001] = mutableListOf()
+                keyMap[1002] = mutableListOf()
+
+                Log.i("tonegenerator", "BGM Play Start")
+                while(isPlay){
+
+                    if(startNot1 == 0L){
+                        startNot1 = Calendar.getInstance().timeInMillis
+                        if(track1Data.size > track1Cnt){
+                            curNote1 = track1Data[track1Cnt]
+                            keyMap[1001]?.add(toneGenerator.toneOn(curNote1.tone, 1, curNote1.osc))
+                        }else{
+                            keyMap[1001]?.forEach {
+                                toneGenerator.toneOff(it)
+                            }
+                        }
+                    }else{
+                        var diff = Calendar.getInstance().timeInMillis - startNot1
+                        var len = (4.0 / curNote1?.length!!) * step
+                        //Log.i("tonegenerator", "diff = $diff : len $len : step $step")
+                        if(diff >= len){
+                            keyMap[1001]?.forEach {
+                                toneGenerator.toneOff(it)
+                            }
+                            track1Cnt++;
+                            startNot1 = 0L
+                        }
+                    }
+
+                    if(startNot2 == 0L){
+                        startNot2 = Calendar.getInstance().timeInMillis
+                        if(track2Data.size > track2Cnt){
+                            curNote2 = track2Data[track2Cnt]
+                            keyMap[1002]?.add(toneGenerator.toneOn(curNote2.tone, 1, curNote2.osc))
+                        }else{
+                            keyMap[1002]?.forEach {
+                                toneGenerator.toneOff(it)
+                            }
+                        }
+                    }else{
+                        var diff = Calendar.getInstance().timeInMillis - startNot2
+                        var len = (4.0 / curNote2?.length!!) * step
+                        if(diff >= len){
+                            keyMap[1002]?.forEach {
+                                toneGenerator.toneOff(it)
+                            }
+                            track2Cnt++;
+                            startNot2 = 0L
+                        }
+                    }
+
+
+                    if(track1Cnt >= track1Data.size && track2Cnt >= track2Data.size){
+                        isPlay = false
+                    }
+                }
+                Log.i("tonegenerator", "BGM Play End")
+
+            })
+            bgmThrtead?.start()
+        }
+
+        findViewById<Button>(R.id.btnStop).setOnClickListener {
+            isPlay = false
+            bgmThrtead?.interrupt()
+            bgmThrtead = null
+        }
+
     }
 
 }
