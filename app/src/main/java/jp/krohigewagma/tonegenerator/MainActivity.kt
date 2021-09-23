@@ -10,77 +10,107 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.SeekBar
 import android.widget.Spinner
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.util.*
 
 class MainActivity : AppCompatActivity(){
 
+    /**
+     * 音源
+     */
     private val toneGenerator = ToneController(22050, 1, 8)
 
+    /**
+     * UIのボタンととOSCObjectのマッピング
+     */
     var keyMap = mutableMapOf<Int, MutableList<Int>>()
 
-    var track1Data = listOf<Note>(
-            Note(Tone.E3, 8, 0),
-            Note(Tone.D3, 8, 0),
-            Note(Tone.C3, 8, 0),
-            Note(Tone.B2, 8, 0),
-            Note(Tone.C3, 8, 0),
-            Note(Tone.D3, 8, 0),
-            Note(Tone.E3, 4, 0),
-            Note(Tone.C3, 8, 0),
-            Note(Tone.A2, 4, 0),
-            Note(Tone.A2, 8, 0),
+    /**
+     * 音楽データ：
+     */
+    var trackData = listOf<List<Note>>(
+            // トラック1
+            listOf<Note>(
+                    Note(Tone.E3, 8, 0),
+                    Note(Tone.D3, 8, 0),
+                    Note(Tone.C3, 8, 0),
+                    Note(Tone.B2, 8, 0),
+                    Note(Tone.C3, 8, 0),
+                    Note(Tone.D3, 8, 0),
+                    Note(Tone.E3, 4, 0),
+                    Note(Tone.C3, 8, 0),
+                    Note(Tone.A2, 4, 0),
+                    Note(Tone.A2, 8, 0),
 
-            Note(Tone.A3, 8, 0),
-            Note(Tone.G3, 8, 0),
-            Note(Tone.F3, 8, 0),
-            Note(Tone.D3, 8, 0),
-            Note(Tone.E3, 8, 0),
-            Note(Tone.F3, 8, 0),
-            Note(Tone.E3, 2, 0),
+                    Note(Tone.A3, 8, 0),
+                    Note(Tone.G3, 8, 0),
+                    Note(Tone.F3, 8, 0),
+                    Note(Tone.D3, 8, 0),
+                    Note(Tone.E3, 8, 0),
+                    Note(Tone.F3, 8, 0),
+                    Note(Tone.E3, 2, 0),
+            ),
+            listOf<Note>(
+                    Note(Tone.NONE, 8, 2),
+                    Note(Tone.C2, 8, 2),
+                    Note(Tone.E2, 8, 2),
+
+                    Note(Tone.NONE, 8, 2),
+                    Note(Tone.C2, 8, 2),
+                    Note(Tone.E2, 8, 2),
+
+                    Note(Tone.NONE, 8, 2),
+                    Note(Tone.C2, 8, 2),
+                    Note(Tone.E2, 8, 2),
+
+                    Note(Tone.NONE, 8, 2),
+                    Note(Tone.C2, 8, 2),
+                    Note(Tone.E2, 8, 2),
+
+                    Note(Tone.NONE, 8, 2),
+                    Note(Tone.A1, 8, 2),
+                    Note(Tone.C2, 8, 2),
+
+                    Note(Tone.NONE, 8, 2),
+                    Note(Tone.B1, 8, 2),
+                    Note(Tone.D2, 8, 2),
+
+                    Note(Tone.NONE, 8, 2),
+                    Note(Tone.E2, 8, 2),
+                    Note(Tone.D2, 8, 2),
+
+                    Note(Tone.C2, 8, 2),
+                    Note(Tone.D2, 8, 2),
+                    Note(Tone.B1, 8, 2),
+            )
     )
-    var track2Data = listOf<Note>(
-            Note(Tone.NONE, 8, 2),
-            Note(Tone.C2, 8, 2),
-            Note(Tone.E2, 8, 2),
 
-            Note(Tone.NONE, 8, 2),
-            Note(Tone.C2, 8, 2),
-            Note(Tone.E2, 8, 2),
+    var startNote = mutableListOf<Long>(0L, 0L)
 
-            Note(Tone.NONE, 8, 2),
-            Note(Tone.C2, 8, 2),
-            Note(Tone.E2, 8, 2),
+    /**
+     * トラックのカウンタ
+     */
+    var trackCntList = mutableListOf<Int>(0, 0)
 
-            Note(Tone.NONE, 8, 2),
-            Note(Tone.C2, 8, 2),
-            Note(Tone.E2, 8, 2),
+    var curNoteList = mutableListOf<Note?>(null, null)
 
-            Note(Tone.NONE, 8, 2),
-            Note(Tone.A1, 8, 2),
-            Note(Tone.C2, 8, 2),
-
-            Note(Tone.NONE, 8, 2),
-            Note(Tone.B1, 8, 2),
-            Note(Tone.D2, 8, 2),
-
-            Note(Tone.NONE, 8, 2),
-            Note(Tone.E2, 8, 2),
-            Note(Tone.D2, 8, 2),
-
-            Note(Tone.C2, 8, 2),
-            Note(Tone.D2, 8, 2),
-            Note(Tone.B1, 8, 2),
-    )
-
-    var track1Cnt = 0
-    var track2Cnt = 0
+    /**
+     * 再生中フラグ
+     */
     var isPlay = false
 
+    /**
+     * 4分音符の長さ(マイクロ秒)
+     */
     var step = 60 * 1000 / 120
 
-    private var bgmThrtead : Thread? = null
-
-    var toneMap = mapOf(
+    /**
+     * ボタンと音のマッピング
+     */
+    private var toneMap = mapOf(
             Pair(R.id.btnC1, Tone.C1),
             Pair(R.id.btnC1s, Tone.C1s),
             Pair(R.id.btnD1, Tone.D1),
@@ -121,6 +151,10 @@ class MainActivity : AppCompatActivity(){
             Pair(R.id.btnB3, Tone.B3),
     )
 
+    /**
+     * ボタンのタップイベント
+     * あまりよくない実装
+     */
     @SuppressLint("ClickableViewAccessibility")
     private val btnTouchListener = View.OnTouchListener { v, event ->
         val osc = when(v.id){
@@ -172,6 +206,8 @@ class MainActivity : AppCompatActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        //オシレータの選択用のアダプタ
         var adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item)
         adapter.add("sin")
         adapter.add("Square 50%")
@@ -181,6 +217,7 @@ class MainActivity : AppCompatActivity(){
         findViewById<Spinner>(R.id.osc2Spinner).adapter = adapter
         findViewById<Spinner>(R.id.osc3Spinner).adapter = adapter
 
+        // ボタンのIDの配列
         var ids = arrayListOf(
                 R.id.btnC1,
                 R.id.btnC1s,
@@ -222,90 +259,88 @@ class MainActivity : AppCompatActivity(){
                 R.id.btnB3,
         )
 
+        // 各ボタンにイベント関連付け
         ids.forEach {
             var btn = findViewById<Button>(it)
             btn.setOnTouchListener(btnTouchListener)
         }
 
-
+        //再生ボタンのイベント
         findViewById<Button>(R.id.btnPlay).setOnClickListener {
-            track1Cnt = 0
-            track2Cnt = 0
             isPlay = true
-
-            bgmThrtead = Thread(Runnable {
-                var curNote1 : Note? = null
-                var startNot1 = 0L
-                var curNote2 : Note? = null
-                var startNot2 = 0L
-                keyMap[1001] = mutableListOf()
-                keyMap[1002] = mutableListOf()
+            GlobalScope.launch(Dispatchers.Default ) {
+                var trackMaxIdx = trackData.size - 1
+                for(idx in 0..trackMaxIdx){
+                    trackCntList[idx] = 0
+                    curNoteList[idx] = null
+                    startNote[idx] = 0L
+                    keyMap[idx + 1000] = mutableListOf()
+                }
 
                 Log.i("tonegenerator", "BGM Play Start")
                 while(isPlay){
-
-                    if(startNot1 == 0L){
-                        startNot1 = Calendar.getInstance().timeInMillis
-                        if(track1Data.size > track1Cnt){
-                            curNote1 = track1Data[track1Cnt]
-                            keyMap[1001]?.add(toneGenerator.toneOn(curNote1.tone, 1, curNote1.osc))
-                        }else{
-                            keyMap[1001]?.forEach {
-                                toneGenerator.toneOff(it)
-                            }
-                        }
-                    }else{
-                        var diff = Calendar.getInstance().timeInMillis - startNot1
-                        var len = (4.0 / curNote1?.length!!) * step
-                        //Log.i("tonegenerator", "diff = $diff : len $len : step $step")
-                        if(diff >= len){
-                            keyMap[1001]?.forEach {
-                                toneGenerator.toneOff(it)
-                            }
-                            track1Cnt++;
-                            startNot1 = 0L
-                        }
+                    for(idx in 0..trackMaxIdx) {
+                        playTrack(idx)
                     }
 
-                    if(startNot2 == 0L){
-                        startNot2 = Calendar.getInstance().timeInMillis
-                        if(track2Data.size > track2Cnt){
-                            curNote2 = track2Data[track2Cnt]
-                            keyMap[1002]?.add(toneGenerator.toneOn(curNote2.tone, 1, curNote2.osc))
-                        }else{
-                            keyMap[1002]?.forEach {
-                                toneGenerator.toneOff(it)
-                            }
-                        }
-                    }else{
-                        var diff = Calendar.getInstance().timeInMillis - startNot2
-                        var len = (4.0 / curNote2?.length!!) * step
-                        if(diff >= len){
-                            keyMap[1002]?.forEach {
-                                toneGenerator.toneOff(it)
-                            }
-                            track2Cnt++;
-                            startNot2 = 0L
+                    var isEnd = true
+                    for(idx in 0..trackMaxIdx){
+                        if(trackCntList[idx] < trackData[idx].size){
+                            isEnd = false
                         }
                     }
-
-
-                    if(track1Cnt >= track1Data.size && track2Cnt >= track2Data.size){
+                    if(isEnd){
                         isPlay = false
                     }
                 }
-                Log.i("tonegenerator", "BGM Play End")
 
-            })
-            bgmThrtead?.start()
+                for(idx in 0..trackMaxIdx) {
+                    keyMap[idx + 1000]?.forEach {
+                        toneGenerator.toneOff(it)
+                    }
+                }
+                Log.i("tonegenerator", "BGM Play End")
+            }
         }
 
+        // 停止ボタンのイベント
         findViewById<Button>(R.id.btnStop).setOnClickListener {
             isPlay = false
-            bgmThrtead?.interrupt()
-            bgmThrtead = null
         }
+    }
 
+    /**
+     * トラックの再生
+     */
+    private fun playTrack(trackNo : Int){
+        val trackCnt = trackCntList[trackNo]
+        var curNote = curNoteList[trackNo]
+        val trackKey = trackNo + 1000
+        val trackData = trackData[trackNo]
+
+        if(startNote[trackNo] == 0L){
+            startNote[trackNo] = Calendar.getInstance().timeInMillis
+            if(trackData.size > trackCnt){
+                curNote = trackData[trackCnt]
+                curNoteList[trackNo] = curNote
+                keyMap[trackKey]?.add(toneGenerator.toneOn(curNote.tone, 1, curNote.osc))
+            }else{
+                keyMap[trackKey]?.forEach {
+                    toneGenerator.toneOff(it)
+                }
+            }
+        }else{
+            val diff = Calendar.getInstance().timeInMillis - startNote[trackNo]
+            val len = (4.0 / curNote?.length!!) * step
+            //Log.i("tonegenerator", "track = $trackNo : diff = $diff : len $len : step $step")
+            if(diff >= len){
+                keyMap[trackKey]?.forEach {
+                    toneGenerator.toneOff(it)
+                }
+                trackCntList[trackNo]++;
+                startNote[trackNo] = 0L
+            }
+        }
     }
 
 }

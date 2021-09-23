@@ -4,6 +4,10 @@ import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import kotlin.math.floor
 import kotlin.math.sin
@@ -49,14 +53,21 @@ class OSCObject(private val tone : Tone, val level: Int, private val func : Int)
     private var buffSize = 0
 
     /**
-     * スレッド
+     * 実行中フラグ
      */
-    private var thread : Thread? = null
+    private var isPlay = false
+
+
     /**
      * カウンタ
      */
-    var cnt = 0
+    private var cnt = 0
 
+
+
+    /**
+     * 初期化
+     */
     init {
         this.buffSize = sampleRate * channel + bitRate
         this.audioTrack = AudioTrack.Builder()
@@ -89,19 +100,19 @@ class OSCObject(private val tone : Tone, val level: Int, private val func : Int)
         })
 
         this.audioTrack?.play()
-        this.thread = Thread(Runnable {
-            while(thread != null){
-                playTone()
-            }
-        })
-        this.thread?.start()
+        isPlay = true
+        GlobalScope.launch(Dispatchers.Default) {
+           while(isPlay){
+               playTone()
+           }
+        }
     }
 
     /**
      * 開放
      */
     fun release(){
-        this.thread = null
+        isPlay = false
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_DEFAULT)
         if(this.audioTrack != null){
             audioTrack?.stop()
@@ -150,14 +161,14 @@ class OSCObject(private val tone : Tone, val level: Int, private val func : Int)
 
         val toneBuff = ByteArrayOutputStream()
         val len = 0
-        toneBuff.use { toneBuff ->
+        toneBuff.use { buff ->
             try {
                 for (i in 0..len) {
                     var data = generate(sampleRate)
-                    toneBuff.write(data)
+                    buff.write(data)
                 }
-                if(0 < toneBuff.size()){
-                    audioTrack?.write(toneBuff.toByteArray(), 0, toneBuff.size())
+                if(0 < buff.size()){
+                    audioTrack?.write(buff.toByteArray(), 0, buff.size())
                 }
                 true
             }catch(e:Exception){
