@@ -2,6 +2,8 @@ package jp.krohigewagma.tonegenerator
 
 /**
  * 音の定義
+ * @param key 音階
+ * @param oct オクターブ
  */
 enum class Tone(val oct : Int, val key : Int) {
     NONE(0, 0),

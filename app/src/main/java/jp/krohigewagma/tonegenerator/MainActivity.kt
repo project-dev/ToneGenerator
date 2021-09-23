@@ -34,57 +34,94 @@ class MainActivity : AppCompatActivity(){
     var trackData = listOf<List<Note>>(
             // トラック1
             listOf<Note>(
-                    Note(Tone.E3, 8, 0),
-                    Note(Tone.D3, 8, 0),
-                    Note(Tone.C3, 8, 0),
-                    Note(Tone.B2, 8, 0),
-                    Note(Tone.C3, 8, 0),
-                    Note(Tone.D3, 8, 0),
-                    Note(Tone.E3, 4, 0),
-                    Note(Tone.C3, 8, 0),
-                    Note(Tone.A2, 4, 0),
-                    Note(Tone.A2, 8, 0),
+                    Note(Tone.F3, 4, 0),
+                    Note(Tone.F3, 4, 0),
+                    Note(Tone.G3, 2, 0),
 
-                    Note(Tone.A3, 8, 0),
+                    Note(Tone.F3, 4, 0),
+                    Note(Tone.F3, 4, 0),
+                    Note(Tone.G3, 2, 0),
+
+                    Note(Tone.F3, 4, 0),
+                    Note(Tone.F3, 4, 0),
+                    Note(Tone.G3s, 4, 0),
+                    Note(Tone.G3, 4, 0),
+
+                    Note(Tone.F3, 4, 0),
                     Note(Tone.G3, 8, 0),
                     Note(Tone.F3, 8, 0),
-                    Note(Tone.D3, 8, 0),
-                    Note(Tone.E3, 8, 0),
-                    Note(Tone.F3, 8, 0),
-                    Note(Tone.E3, 2, 0),
+
+                    Note(Tone.C3s, 2, 0),
+
+                    Note(Tone.C3, 4, 0),
+                    Note(Tone.G2s, 4, 0),
+                    Note(Tone.C3, 4, 0),
+                    Note(Tone.C3s, 4, 0),
+
+                    Note(Tone.C3, 4, 0),
+                    Note(Tone.C3, 8, 0),
+                    Note(Tone.G2s, 8, 0),
+                    Note(Tone.G2, 4, 0),
             ),
             listOf<Note>(
-                    Note(Tone.NONE, 8, 2),
-                    Note(Tone.C2, 8, 2),
-                    Note(Tone.E2, 8, 2),
-
-                    Note(Tone.NONE, 8, 2),
-                    Note(Tone.C2, 8, 2),
-                    Note(Tone.E2, 8, 2),
-
-                    Note(Tone.NONE, 8, 2),
-                    Note(Tone.C2, 8, 2),
-                    Note(Tone.E2, 8, 2),
-
-                    Note(Tone.NONE, 8, 2),
-                    Note(Tone.C2, 8, 2),
-                    Note(Tone.E2, 8, 2),
-
-                    Note(Tone.NONE, 8, 2),
-                    Note(Tone.A1, 8, 2),
-                    Note(Tone.C2, 8, 2),
-
-                    Note(Tone.NONE, 8, 2),
-                    Note(Tone.B1, 8, 2),
-                    Note(Tone.D2, 8, 2),
-
-                    Note(Tone.NONE, 8, 2),
-                    Note(Tone.E2, 8, 2),
-                    Note(Tone.D2, 8, 2),
+                    Note(Tone.F2, 8, 2),
+                    Note(Tone.F1, 8, 2),
+                    Note(Tone.F2, 8, 2),
+                    Note(Tone.F1, 8, 2),
 
                     Note(Tone.C2, 8, 2),
-                    Note(Tone.D2, 8, 2),
-                    Note(Tone.B1, 8, 2),
+                    Note(Tone.C1, 8, 2),
+                    Note(Tone.C2, 8, 2),
+                    Note(Tone.C1, 8, 2),
+
+                    Note(Tone.F2, 8, 2),
+                    Note(Tone.F1, 8, 2),
+                    Note(Tone.F2, 8, 2),
+                    Note(Tone.F1, 8, 2),
+
+                    Note(Tone.C2, 8, 2),
+                    Note(Tone.C1, 8, 2),
+                    Note(Tone.C2, 8, 2),
+                    Note(Tone.C1, 8, 2),
+
+                    Note(Tone.F2, 8, 2),
+                    Note(Tone.F1, 8, 2),
+                    Note(Tone.D2s, 8, 2),
+                    Note(Tone.D1s, 8, 2),
+                    Note(Tone.C2s, 8, 2),
+                    Note(Tone.C1s, 8, 2),
+                    Note(Tone.C2, 8, 2),
+                    Note(Tone.C1, 8, 2),
+
+                    Note(Tone.F2, 8, 2),
+                    Note(Tone.F1, 8, 2),
+                    Note(Tone.F2, 8, 2),
+                    Note(Tone.F1, 8, 2),
+
+                    Note(Tone.C2s, 8, 2),
+                    Note(Tone.C1s, 8, 2),
+                    Note(Tone.C2s, 8, 2),
+                    Note(Tone.C1s, 8, 2),
+
+                    Note(Tone.C2, 8, 2),
+                    Note(Tone.C1, 8, 2),
+                    Note(Tone.C2, 8, 2),
+                    Note(Tone.C1, 8, 2),
+
+                    Note(Tone.C2, 8, 2),
+                    Note(Tone.C1, 8, 2),
+                    Note(Tone.C2, 8, 2),
+                    Note(Tone.C1, 8, 2),
+
+                    Note(Tone.C2, 8, 2),
+                    Note(Tone.C1, 8, 2),
+                    Note(Tone.C2, 8, 2),
+                    Note(Tone.C1, 8, 2),
+
+                    Note(Tone.G2, 8, 2),
+                    Note(Tone.G1, 8, 2),
+                    Note(Tone.G2, 8, 2),
+                    Note(Tone.G1, 8, 2),
             )
     )
 
@@ -321,9 +358,9 @@ class MainActivity : AppCompatActivity(){
         if(startNote[trackNo] == 0L){
             startNote[trackNo] = Calendar.getInstance().timeInMillis
             if(trackData.size > trackCnt){
-                curNote = trackData[trackCnt]
-                curNoteList[trackNo] = curNote
-                keyMap[trackKey]?.add(toneGenerator.toneOn(curNote.tone, 1, curNote.osc))
+                curNoteList[trackNo] = trackData[trackCnt]
+                curNote = curNoteList[trackNo]
+                keyMap[trackKey]?.add(toneGenerator.toneOn(curNote!!.tone, 1, curNote.osc))
             }else{
                 keyMap[trackKey]?.forEach {
                     toneGenerator.toneOff(it)
