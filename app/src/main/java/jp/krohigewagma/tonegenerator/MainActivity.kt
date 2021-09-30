@@ -3,18 +3,12 @@ package jp.krohigewagma.tonegenerator
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.SeekBar
 import android.widget.Spinner
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import java.util.*
 
 class MainActivity : AppCompatActivity(){
 
@@ -125,25 +119,6 @@ class MainActivity : AppCompatActivity(){
             )
     )
 
-    var startNote = mutableListOf<Long>(0L, 0L)
-
-    /**
-     * トラックのカウンタ
-     */
-    var trackCntList = mutableListOf<Int>(0, 0)
-
-    var curNoteList = mutableListOf<Note?>(null, null)
-
-    /**
-     * 再生中フラグ
-     */
-    var isPlay = false
-
-    /**
-     * 4分音符の長さ(マイクロ秒)
-     */
-    var step = 60 * 1000 / 120
-
     /**
      * ボタンと音のマッピング
      */
@@ -187,6 +162,7 @@ class MainActivity : AppCompatActivity(){
             Pair(R.id.btnA3s, Tone.A3s),
             Pair(R.id.btnB3, Tone.B3),
     )
+
 
     /**
      * ボタンのタップイベント
@@ -304,79 +280,13 @@ class MainActivity : AppCompatActivity(){
 
         //再生ボタンのイベント
         findViewById<Button>(R.id.btnPlay).setOnClickListener {
-            isPlay = true
-            GlobalScope.launch(Dispatchers.Default ) {
-                var trackMaxIdx = trackData.size - 1
-                for(idx in 0..trackMaxIdx){
-                    trackCntList[idx] = 0
-                    curNoteList[idx] = null
-                    startNote[idx] = 0L
-                    keyMap[idx + 1000] = mutableListOf()
-                }
-
-                Log.i("tonegenerator", "BGM Play Start")
-                while(isPlay){
-                    for(idx in 0..trackMaxIdx) {
-                        playTrack(idx)
-                    }
-
-                    var isEnd = true
-                    for(idx in 0..trackMaxIdx){
-                        if(trackCntList[idx] < trackData[idx].size){
-                            isEnd = false
-                        }
-                    }
-                    if(isEnd){
-                        isPlay = false
-                    }
-                }
-
-                for(idx in 0..trackMaxIdx) {
-                    keyMap[idx + 1000]?.forEach {
-                        toneGenerator.toneOff(it)
-                    }
-                }
-                Log.i("tonegenerator", "BGM Play End")
-            }
+            Sequencer.initialize(toneGenerator, 120, 480)
+            Sequencer.play(trackData)
         }
 
         // 停止ボタンのイベント
         findViewById<Button>(R.id.btnStop).setOnClickListener {
-            isPlay = false
-        }
-    }
-
-    /**
-     * トラックの再生
-     */
-    private fun playTrack(trackNo : Int){
-        val trackCnt = trackCntList[trackNo]
-        var curNote = curNoteList[trackNo]
-        val trackKey = trackNo + 1000
-        val trackData = trackData[trackNo]
-
-        if(startNote[trackNo] == 0L){
-            startNote[trackNo] = Calendar.getInstance().timeInMillis
-            if(trackData.size > trackCnt){
-                curNoteList[trackNo] = trackData[trackCnt]
-                curNote = curNoteList[trackNo]
-                keyMap[trackKey]?.add(toneGenerator.toneOn(curNote!!.tone, 1, curNote.osc))
-            }else{
-                keyMap[trackKey]?.forEach {
-                    toneGenerator.toneOff(it)
-                }
-            }
-        }else{
-            val diff = Calendar.getInstance().timeInMillis - startNote[trackNo]
-            val len = (4.0 / curNote?.length!!) * step
-            //Log.i("tonegenerator", "track = $trackNo : diff = $diff : len $len : step $step")
-            if(diff >= len){
-                keyMap[trackKey]?.forEach {
-                    toneGenerator.toneOff(it)
-                }
-                trackCntList[trackNo]++;
-                startNote[trackNo] = 0L
-            }
+            Sequencer.stop()
         }
     }
 

@@ -8,6 +8,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.ByteArrayOutputStream
 import kotlin.math.floor
 import kotlin.math.sin
@@ -15,7 +17,7 @@ import kotlin.math.sin
 /**
  * 音を作って鳴らすメインのクラス
  */
-class OSCObject(private val tone : Tone, val level: Int, private val func : Int) {
+class OSCObject(private var tone : Tone, var level: Int, private var func : Int) {
     companion object{
         /**
          * 音階基礎定義
@@ -40,6 +42,12 @@ class OSCObject(private val tone : Tone, val level: Int, private val func : Int)
         var channel : Int = 0
         var bitRate : Int = 0
         var level : Int = 100
+
+        /**
+         * AudioTrackを再利用するかどうかのフラグ
+         */
+        var reuseAudioTrack = true
+            private set
     }
 
     /**
@@ -48,28 +56,22 @@ class OSCObject(private val tone : Tone, val level: Int, private val func : Int)
     private var audioTrack : AudioTrack? = null
 
     /**
-     * バッファサイズ
-     */
-    private var buffSize = 0
-
-    /**
-     * 実行中フラグ
-     */
-    private var isPlay = false
-
-
-    /**
      * カウンタ
      */
     private var cnt = 0
 
-
+    val mutex = Mutex()
 
     /**
      * 初期化
      */
     init {
-        this.buffSize = sampleRate * channel + bitRate
+        initAudioTrack()
+        setTone(this.tone, this.level, this.func)
+    }
+
+    private fun initAudioTrack(){
+        var minBuffSize = AudioTrack.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_8BIT)
         this.audioTrack = AudioTrack.Builder()
                 .setAudioAttributes(
                         AudioAttributes.Builder()
@@ -85,6 +87,7 @@ class OSCObject(private val tone : Tone, val level: Int, private val func : Int)
                                 .build()
                 )
                 .setTransferMode(AudioTrack.MODE_STREAM)
+                //.setBufferSizeInBytes(minBuffSize * 2)
                 .build()
 
         this.audioTrack?.setPlaybackPositionUpdateListener(object : AudioTrack.OnPlaybackPositionUpdateListener{
@@ -93,18 +96,57 @@ class OSCObject(private val tone : Tone, val level: Int, private val func : Int)
             }
 
             override fun onPeriodicNotification(track: AudioTrack?) {
-                if(track?.playState == AudioTrack.PLAYSTATE_STOPPED){
+                if(AudioTrack.PLAYSTATE_STOPPED == track?.playState){
                     Log.d(ToneController.APP_NAME, "onPeriodicNotification End")
                 }
             }
         })
+    }
 
-        this.audioTrack?.play()
-        isPlay = true
-        GlobalScope.launch(Dispatchers.Default) {
-           while(isPlay){
-               playTone()
-           }
+    /**
+     * 音データを設定する
+     */
+    fun setTone(tone : Tone, level: Int, func : Int){
+        this.tone = tone
+        this.level = level
+        this.func = func
+        this.cnt = 0
+
+        if(audioTrack == null){
+            initAudioTrack()
+        }
+
+        try{
+            if(AudioTrack.PLAYSTATE_PLAYING != audioTrack?.playState){
+                audioTrack?.play()
+            }
+
+            GlobalScope.launch(Dispatchers.Default) {
+                mutex.withLock {
+                    while(AudioTrack.PLAYSTATE_PLAYING == audioTrack?.playState){
+                        playTone()
+                    }
+                    if(!reuseAudioTrack){
+                        audioTrack?.release()
+                        audioTrack = null
+                    }
+                }
+            }
+        }catch(e:Exception){
+            Log.e(ToneController.APP_NAME, e.message!!)
+        }
+    }
+
+    /**
+     * 停止する
+     */
+    fun stop(){
+        try{
+            if(audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
+                audioTrack?.stop()
+            }
+        }catch(e :Exception){
+            Log.e(ToneController.APP_NAME, e.message!!)
         }
     }
 
@@ -112,14 +154,14 @@ class OSCObject(private val tone : Tone, val level: Int, private val func : Int)
      * 開放
      */
     fun release(){
-        isPlay = false
-        android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_DEFAULT)
-        if(this.audioTrack != null){
+        //android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_DEFAULT)
+        if (null != this.audioTrack) {
             audioTrack?.stop()
             audioTrack?.release()
         }
         audioTrack = null
     }
+
     /**
      * 音を生成
      */
@@ -147,32 +189,41 @@ class OSCObject(private val tone : Tone, val level: Int, private val func : Int)
         return floor(toneData).toInt()
     }
 
+
     /**
      * 再生する
      */
     private fun playTone(){
-        if(audioTrack?.state == AudioTrack.STATE_UNINITIALIZED){
-            return
-        }
-
-        if(tone == Tone.NONE){
+        if(tone == Tone.NONE
+                || null == audioTrack
+                || AudioTrack.STATE_UNINITIALIZED == audioTrack?.state
+                || AudioTrack.PLAYSTATE_STOPPED == audioTrack?.playState
+        ){
             return
         }
 
         val toneBuff = ByteArrayOutputStream()
+
         val len = 0
         toneBuff.use { buff ->
             try {
-                for (i in 0..len) {
-                    var data = generate(sampleRate)
-                    buff.write(data)
-                }
-                if(0 < buff.size()){
-                    audioTrack?.write(buff.toByteArray(), 0, buff.size())
+                if(AudioTrack.PLAYSTATE_PLAYING == audioTrack?.playState){
+                    for (i in 0..len) {
+                        var data = generate(sampleRate)
+                        buff.write(data)
+                    }
+                    val buffer = buff.toByteArray()
+                    if(buffer.isNotEmpty()){
+                        when(audioTrack?.write(buffer, 0, buffer.size)){
+                            AudioTrack.ERROR_BAD_VALUE -> Log.i(ToneController.APP_NAME, "ERROR_BAD_VALUE")
+                            AudioTrack.ERROR_DEAD_OBJECT -> Log.i(ToneController.APP_NAME, "ERROR_DEAD_OBJECT")
+                            AudioTrack.ERROR_INVALID_OPERATION -> Log.i(ToneController.APP_NAME, "ERROR_INVALID_OPERATION")
+                        }
+                    }
                 }
                 true
             }catch(e:Exception){
-                Log.e("tonegenerator", "Error!!!", e)
+                Log.e(ToneController.APP_NAME, "Error!!!", e)
             }
         }
     }

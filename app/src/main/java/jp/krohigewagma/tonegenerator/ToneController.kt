@@ -1,10 +1,7 @@
 package jp.krohigewagma.tonegenerator
 
-import android.media.AudioAttributes
-import android.media.AudioFormat
-import android.media.AudioTrack
 import android.util.Log
-import java.io.ByteArrayOutputStream
+import java.util.*
 
 /**
  *
@@ -18,7 +15,8 @@ class ToneController(private var sampleRate : Int, private var channel : Int, pr
         const val APP_NAME = "ToneGenerator"
     }
 
-    private var trackMap = mutableMapOf<Int, OSCObject>()
+    private var oscMap = mutableMapOf<Int, OSCObject>()
+    private var oscStack = Stack<OSCObject>()
 
     init{
         OSCObject.sampleRate = this.sampleRate
@@ -35,26 +33,60 @@ class ToneController(private var sampleRate : Int, private var channel : Int, pr
      * @return 管理用ID
      */
     fun toneOn(tone : Tone, level : Int, func : Int) : Int{
-        //toneBuff.add(OSCObject(tone, level, func))
+/*
         if(trackMap.size >= 4){
             // 同時に4津の音は鳴らせない
             return -1
         }
-        var osc = OSCObject(tone, level, func)
-        trackMap[osc.hashCode()] = osc
-        return osc.hashCode()
+ */
+        if(oscStack.size > 0){
+            var osc = oscStack.pop()
+            osc.setTone(tone, level, func)
+            oscMap[osc.hashCode()] = osc
+            return osc.hashCode()
+        }else{
+            var osc = OSCObject(tone, level, func)
+            oscMap[osc.hashCode()] = osc
+            return osc.hashCode()
+        }
+
     }
 
     /**
      * 音を留める
      */
     fun toneOff(id : Int){
-        if(!trackMap.containsKey(id)){
+        if(!oscMap.containsKey(id)){
             return
         }
-        var ocs = trackMap[id]
-        trackMap.remove(id)
-        ocs?.release()
+        var ocs = oscMap[id]
+
+        oscMap.remove(id)
+        oscStack.push(ocs)
+        ocs?.stop()
+        if(!OSCObject.reuseAudioTrack){
+            ocs?.release()
+        }
     }
 
+    fun reset(){
+        try{
+            oscMap.forEach { (id, osc) ->
+                oscStack.push(osc)
+                osc.stop()
+                osc.release()
+            }
+            oscMap.clear()
+
+            while(oscStack.size > 0){
+                var osc = oscStack.pop()
+                osc.stop()
+                osc.release()
+            }
+
+
+        }catch(e : Exception){
+            Log.e(ToneController.APP_NAME, e.message!!)
+        }
+    }
 }
