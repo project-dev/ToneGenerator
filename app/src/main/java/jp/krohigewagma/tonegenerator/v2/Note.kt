@@ -1,4 +1,4 @@
-package jp.krohigewagma.tonegenerator
+package jp.krohigewagma.tonegenerator.v2
 
 /**
  * とりあえず出作ったノート情報を持つクラス

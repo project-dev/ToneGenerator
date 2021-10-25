@@ -1,4 +1,4 @@
-package jp.krohigewagma.tonegenerator
+package jp.krohigewagma.tonegenerator.v1
 
 import android.media.AudioAttributes
 import android.media.AudioFormat

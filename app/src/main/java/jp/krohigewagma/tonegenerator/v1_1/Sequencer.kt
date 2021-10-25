@@ -1,9 +1,7 @@
-package jp.krohigewagma.tonegenerator
+package jp.krohigewagma.tonegenerator.v1_1
 
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -42,11 +40,6 @@ class Sequencer {
             private set
 
         /**
-         * ToneController
-         */
-        private lateinit var toneCtrl : ToneController
-
-        /**
          * トラック
          */
         private var trackList = mutableListOf<Track>()
@@ -54,8 +47,7 @@ class Sequencer {
         /**
          * 初期化
          */
-        fun initialize(tg : ToneController, tempo : Int, tick : Int){
-            this.toneCtrl = tg
+        fun initialize(tempo : Int, tick : Int){
             this.tempo = tempo
             this.tick = tick
             updateTickOfTime()
@@ -63,13 +55,6 @@ class Sequencer {
             this.trackList.add(Track(2))
             this.trackList.add(Track(3))
             this.trackList.add(Track(4))
-        }
-
-        /**
-         *
-         */
-        public final fun getToneController() : ToneController{
-            return this.toneCtrl
         }
 
         /**
@@ -182,7 +167,7 @@ class Sequencer {
             trackList.forEach {
                 it.end()
             }
-            this.toneCtrl.reset()
+            ToneGenerator.reset()
             this.status = STATUS.STOP
         }
 
@@ -209,5 +194,3 @@ class Sequencer {
     }
 
 }
-
-

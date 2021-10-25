@@ -1,4 +1,4 @@
-package jp.krohigewagma.tonegenerator
+package jp.krohigewagma.tonegenerator.v2
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -57,7 +57,6 @@ class Track(var trackNo : Int) {
             isToneOn = false
             noteCnt =0
             var toneId = 0
-            val toneController = Sequencer.getToneController()
             while(isPlay){
                 if(noteCnt >= noteList.size || Sequencer.status == Sequencer.STATUS.STOP){
                     isPlay = false
@@ -70,18 +69,19 @@ class Track(var trackNo : Int) {
                     isToneOn = true
                     prevTickCnt = Sequencer.tickCount
                     var note = noteList[noteCnt]
-                    toneId = toneController.toneOn(note.tone, 100, note.osc)
+                    ToneGenerator.toneOn(trackNo, note.tone, 100)
 
                 }else if(isToneOn && Sequencer.tickCount - prevTickCnt >= (Sequencer.noteToTick(noteList[noteCnt]) - 1) ){
                     isToneOn = false
-                    toneController.toneOff(toneId)
+                    var note = noteList[noteCnt]
+                    ToneGenerator.toneOff(trackNo, note.tone)
                     toneId = 0
                     noteCnt++
                 }
             }
-            if(toneId != 0){
-                toneController.toneOff(toneId)
-            }
+//            if(toneId != 0){
+//                ToneGenerator.toneOff(toneId)
+//            }
         }
     }
 

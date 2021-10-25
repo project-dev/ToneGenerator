@@ -1,4 +1,4 @@
-package jp.krohigewagma.tonegenerator
+package jp.krohigewagma.tonegenerator.v2
 
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
@@ -9,13 +9,9 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.SeekBar
 import android.widget.Spinner
+import jp.krohigewagma.tonegenerator.R
 
 class MainActivity : AppCompatActivity(){
-
-    /**
-     * 音源
-     */
-    private val toneGenerator = ToneController(22050, 1, 8)
 
     /**
      * UIのボタンととOSCObjectのマッピング
@@ -163,7 +159,6 @@ class MainActivity : AppCompatActivity(){
             Pair(R.id.btnB3, Tone.B3),
     )
 
-
     /**
      * ボタンのタップイベント
      * あまりよくない実装
@@ -171,45 +166,59 @@ class MainActivity : AppCompatActivity(){
     @SuppressLint("ClickableViewAccessibility")
     private val btnTouchListener = View.OnTouchListener { v, event ->
         val osc = when(v.id){
-            R.id.btnC1,R.id.btnC1s,R.id.btnD1,R.id.btnD1s,R.id.btnE1,R.id.btnF1,R.id.btnF1s,R.id.btnG1,R.id.btnG1s,R.id.btnA1, R.id.btnA1s,R.id.btnB1 -> findViewById<Spinner>(R.id.osc1Spinner).selectedItemPosition
-            R.id.btnC2,R.id.btnC2s,R.id.btnD2,R.id.btnD2s,R.id.btnE2,R.id.btnF2,R.id.btnF2s,R.id.btnG2,R.id.btnG2s,R.id.btnA2, R.id.btnA2s,R.id.btnB2 -> findViewById<Spinner>(R.id.osc2Spinner).selectedItemPosition
-            R.id.btnC3,R.id.btnC3s,R.id.btnD3,R.id.btnD3s,R.id.btnE3,R.id.btnF3,R.id.btnF3s,R.id.btnG3,R.id.btnG3s,R.id.btnA3, R.id.btnA3s,R.id.btnB3 -> findViewById<Spinner>(R.id.osc3Spinner).selectedItemPosition
+            R.id.btnC1, R.id.btnC1s, R.id.btnD1, R.id.btnD1s, R.id.btnE1, R.id.btnF1, R.id.btnF1s, R.id.btnG1, R.id.btnG1s, R.id.btnA1, R.id.btnA1s, R.id.btnB1 -> findViewById<Spinner>(R.id.osc1Spinner).selectedItemPosition
+            R.id.btnC2, R.id.btnC2s, R.id.btnD2, R.id.btnD2s, R.id.btnE2, R.id.btnF2, R.id.btnF2s, R.id.btnG2, R.id.btnG2s, R.id.btnA2, R.id.btnA2s, R.id.btnB2 -> findViewById<Spinner>(R.id.osc2Spinner).selectedItemPosition
+            R.id.btnC3, R.id.btnC3s, R.id.btnD3, R.id.btnD3s, R.id.btnE3, R.id.btnF3, R.id.btnF3s, R.id.btnG3, R.id.btnG3s, R.id.btnA3, R.id.btnA3s, R.id.btnB3 -> findViewById<Spinner>(R.id.osc3Spinner).selectedItemPosition
             else -> 1
         }
 
 
         val level = when(v.id){
-            R.id.btnC1,R.id.btnC1s,R.id.btnD1,R.id.btnD1s,R.id.btnE1,R.id.btnF1,R.id.btnF1s,R.id.btnG1,R.id.btnG1s,R.id.btnA1, R.id.btnA1s,R.id.btnB1 -> findViewById<SeekBar>(R.id.osc1Level).progress
-            R.id.btnC2,R.id.btnC2s,R.id.btnD2,R.id.btnD2s,R.id.btnE2,R.id.btnF2,R.id.btnF2s,R.id.btnG2,R.id.btnG2s,R.id.btnA2, R.id.btnA2s,R.id.btnB2 -> findViewById<SeekBar>(R.id.osc2Level).progress
-            R.id.btnC3,R.id.btnC3s,R.id.btnD3,R.id.btnD3s,R.id.btnE3,R.id.btnF3,R.id.btnF3s,R.id.btnG3,R.id.btnG3s,R.id.btnA3, R.id.btnA3s,R.id.btnB3 -> findViewById<SeekBar>(R.id.osc3Level).progress
+            R.id.btnC1, R.id.btnC1s, R.id.btnD1, R.id.btnD1s, R.id.btnE1, R.id.btnF1, R.id.btnF1s, R.id.btnG1, R.id.btnG1s, R.id.btnA1, R.id.btnA1s, R.id.btnB1 -> findViewById<SeekBar>(R.id.osc1Level).progress
+            R.id.btnC2, R.id.btnC2s, R.id.btnD2, R.id.btnD2s, R.id.btnE2, R.id.btnF2, R.id.btnF2s, R.id.btnG2, R.id.btnG2s, R.id.btnA2, R.id.btnA2s, R.id.btnB2 -> findViewById<SeekBar>(R.id.osc2Level).progress
+            R.id.btnC3, R.id.btnC3s, R.id.btnD3, R.id.btnD3s, R.id.btnE3, R.id.btnF3, R.id.btnF3s, R.id.btnG3, R.id.btnG3s, R.id.btnA3, R.id.btnA3s, R.id.btnB3 -> findViewById<SeekBar>(R.id.osc3Level).progress
             else -> 1
         }
 
         if(!keyMap.containsKey(v.id)){
             keyMap[v.id] = mutableListOf()
         }
-        when(event.action){
-            MotionEvent.ACTION_DOWN ->{
-                if(toneMap.containsKey(v.id)){
-                    var tone = toneMap[v.id]
-                    keyMap[v.id]?.add(toneGenerator.toneOn(tone!!, level, osc))
+
+        if(toneMap.containsKey(v.id)) {
+            var tone = toneMap[v.id]
+
+            var ch = 0
+
+            when(tone){
+                Tone.C1, Tone.C1s, Tone.D1b, Tone.D1, Tone.D1s, Tone.E1b, Tone.E1, Tone.F1, Tone.F1s, Tone.G1b, Tone.G1, Tone.G1s, Tone.A1b, Tone.A1, Tone.A1s, Tone.B1b, Tone.B1 ->{
+                    ch = 0
+                }
+
+                Tone.C2, Tone.C2s, Tone.D2b, Tone.D2, Tone.D2s, Tone.E2b, Tone.E2, Tone.F2, Tone.F2s, Tone.G2b, Tone.G2, Tone.G2s, Tone.A2b, Tone.A2, Tone.A2s, Tone.B2b, Tone.B2 ->{
+                    ch = 1
+                }
+                Tone.C3, Tone.C3s, Tone.D3b, Tone.D3, Tone.D3s, Tone.E3b, Tone.E3, Tone.F3, Tone.F3s, Tone.G3b, Tone.G3, Tone.G3s, Tone.A3b, Tone.A3, Tone.A3s, Tone.B3b, Tone.B3 ->{
+                    ch = 2
                 }
             }
-            MotionEvent.ACTION_MOVE->{
-            }
-            MotionEvent.ACTION_UP->{
-                keyMap[v.id]?.forEach {
-                    toneGenerator.toneOff(it)
+
+
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    ToneGenerator.toneOn(ch, tone!!, level)
                 }
-            }
-            MotionEvent.ACTION_CANCEL->{
-                keyMap[v.id]?.forEach {
-                    toneGenerator.toneOff(it)
+
+                MotionEvent.ACTION_MOVE -> {
                 }
-            }
-            MotionEvent.ACTION_OUTSIDE->{
-                keyMap[v.id]?.forEach {
-                    toneGenerator.toneOff(it)
+
+                MotionEvent.ACTION_UP -> {
+                    ToneGenerator.toneOff(ch, tone!!)
+                }
+                MotionEvent.ACTION_CANCEL -> {
+                    ToneGenerator.toneOff(ch, tone!!)
+                }
+                MotionEvent.ACTION_OUTSIDE -> {
+                    ToneGenerator.toneOff(ch, tone!!)
                 }
             }
         }
@@ -219,6 +228,12 @@ class MainActivity : AppCompatActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        /**
+         * 設定の初期化
+         */
+        ToneGeneratorConfig.initialize(22050, 1, 8)
+        ToneGenerator.start()
 
         //オシレータの選択用のアダプタ
         var adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item)
@@ -280,7 +295,10 @@ class MainActivity : AppCompatActivity(){
 
         //再生ボタンのイベント
         findViewById<Button>(R.id.btnPlay).setOnClickListener {
-            Sequencer.initialize(toneGenerator, 120, 480)
+            // 分解能
+            // 一般的？　480
+            // PMA-5    96
+            Sequencer.initialize(120, 96)
             Sequencer.play(trackData)
         }
 
