@@ -39,13 +39,16 @@ class ToneController(private var sampleRate : Int, private var channel : Int, pr
             return -1
         }
  */
+
+        var frequency = OSCObject.toneToFrequency(tone)
+
         if(oscStack.size > 0){
             var osc = oscStack.pop()
             osc.setTone(tone, level, func)
             oscMap[osc.hashCode()] = osc
             return osc.hashCode()
         }else{
-            var osc = OSCObject(tone, level, func)
+            var osc = OSCObject(frequency, level, func)
             oscMap[osc.hashCode()] = osc
             return osc.hashCode()
         }

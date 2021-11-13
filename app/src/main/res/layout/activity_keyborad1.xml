@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/ic_back"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="4dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:paddingVertical="4dp">
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="OSC"
+                android:textSize="24sp" />
+
+            <Spinner
+                android:id="@+id/oscSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:paddingVertical="4dp">
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Level"
+                android:textSize="24sp" />
+
+            <SeekBar
+                android:id="@+id/oscLevel"
+                android:layout_width="120dp"
+                android:layout_height="match_parent"
+                android:max="100"
+                android:min="0"
+                android:progress="100" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TableLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        android:paddingHorizontal="16dp"
+        android:textAlignment="center">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="2dp">
+
+            <ImageView
+                android:id="@+id/keyFs0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button01_01" />
+
+            <ImageView
+                android:id="@+id/keyGs0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="3"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button01_01" />
+
+            <ImageView
+                android:id="@+id/keyAs0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="5"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button01_01" />
+
+            <ImageView
+                android:id="@+id/keyCs1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="9"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button01_01" />
+
+            <ImageView
+                android:id="@+id/keyDs1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="11"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button01_01" />
+
+            <ImageView
+                android:id="@+id/keyFs1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="15"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button01_01" />
+
+            <ImageView
+                android:id="@+id/keyGs1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="15"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button01_01" />
+
+            <ImageView
+                android:id="@+id/keyAs1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="15"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button01_01" />
+
+            <ImageView
+                android:id="@+id/keyCs2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="23"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button01_01" />
+
+            <ImageView
+                android:id="@+id/keyDs2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="23"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button01_01" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="2dp">
+
+            <ImageView
+                android:id="@+id/keyF0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="0"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button02_01" />
+
+            <ImageView
+                android:id="@+id/keyG0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="2"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button02_01" />
+
+            <ImageView
+                android:id="@+id/keyA0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="4"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button02_01" />
+
+            <ImageView
+                android:id="@+id/keyB0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="6"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button02_01" />
+
+            <ImageView
+                android:id="@+id/keyC1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="8"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button02_01" />
+
+            <ImageView
+                android:id="@+id/keyD1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="10"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button02_01" />
+
+            <ImageView
+                android:id="@+id/keyE1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="12"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button02_01" />
+
+            <ImageView
+                android:id="@+id/keyF1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="12"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button02_01" />
+
+            <ImageView
+                android:id="@+id/keyG1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="12"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button02_01" />
+
+            <ImageView
+                android:id="@+id/keyA1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="12"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button02_01" />
+
+            <ImageView
+                android:id="@+id/keyB1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="12"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button02_01" />
+
+            <ImageView
+                android:id="@+id/keyC2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="12"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button02_01" />
+
+            <ImageView
+                android:id="@+id/keyD2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="12"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button02_01" />
+
+            <ImageView
+                android:id="@+id/keyE2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="12"
+                android:layout_span="2"
+                android:paddingHorizontal="2dp"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_button02_01" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_gravity="clip_horizontal"
+            android:layoutMode="opticalBounds"
+            android:overScrollMode="always"
+            android:paddingVertical="2dp"
+            android:visibility="visible">
+
+            <ImageView
+                android:id="@+id/keyBar01"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar02"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar03"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar04"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar05"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar06"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar07"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar08"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar09"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar12"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar13"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar14"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar15"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar16"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar17"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar18"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar19"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar20"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar21"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar24"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar25"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar26"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+            <ImageView
+                android:id="@+id/keyBar27"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="28dp"
+                app:srcCompat="@drawable/ic_bar2" />
+
+        </TableRow>
+
+    </TableLayout>
+</LinearLayout>

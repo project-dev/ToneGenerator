@@ -17,7 +17,7 @@ import kotlin.math.sin
 /**
  * 音を作って鳴らすメインのクラス
  */
-class OSCObject(private var tone : Tone, var level: Int, private var func : Int) {
+class OSCObject(private var frequency : Double, var level: Int, private var func : Int) {
     companion object{
         /**
          * 音階基礎定義
@@ -38,6 +38,7 @@ class OSCObject(private var tone : Tone, var level: Int, private var func : Int)
                 246.942  // B
         )
 
+
         var sampleRate : Int = 0
         var channel : Int = 0
         var bitRate : Int = 0
@@ -48,6 +49,10 @@ class OSCObject(private var tone : Tone, var level: Int, private var func : Int)
          */
         var reuseAudioTrack = true
             private set
+
+        fun toneToFrequency(tone : Tone) : Double{
+            return toneBase[tone.key] * tone.oct
+        }
     }
 
     /**
@@ -67,9 +72,12 @@ class OSCObject(private var tone : Tone, var level: Int, private var func : Int)
      */
     init {
         initAudioTrack()
-        setTone(this.tone, this.level, this.func)
+        setTone(0.0, this.level, this.func)
     }
 
+    /**
+     * 初期化
+     */
     private fun initAudioTrack(){
         var minBuffSize = AudioTrack.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_8BIT)
         this.audioTrack = AudioTrack.Builder()
@@ -105,9 +113,22 @@ class OSCObject(private var tone : Tone, var level: Int, private var func : Int)
 
     /**
      * 音データを設定する
+     * @param tone
+     * @param level
+     * @param func
      */
     fun setTone(tone : Tone, level: Int, func : Int){
-        this.tone = tone
+        setTone(toneBase[tone.key] * tone.oct, level, func)
+    }
+
+    /**
+     *　音データを設定する
+     * @param frequency
+     * @param level
+     * @param func
+     */
+    fun setTone(frequency : Double, level: Int, func : Int){
+        this.frequency = frequency
         this.level = level
         this.func = func
         this.cnt = 0
@@ -136,6 +157,7 @@ class OSCObject(private var tone : Tone, var level: Int, private var func : Int)
             Log.e(ToneController.APP_NAME, e.message!!)
         }
     }
+
 
     /**
      * 停止する
@@ -166,15 +188,13 @@ class OSCObject(private var tone : Tone, var level: Int, private var func : Int)
      * 音を生成
      */
     private fun generate(sampleRate : Int ) : Int{
-        var frequency = toneBase[this.tone.key] * this.tone.oct
-
         // TODO:ここの計算を理解していないのでどこかで理解する
         // https://dev.classmethod.jp/articles/andoid_sound_generator_xmas/
-        var r = this.cnt / (sampleRate / frequency) * (Math.PI * 2)
+        var r = this.cnt / (sampleRate / this.frequency) * (Math.PI * 2)
         var toneData = when(func){
             0->sin(r)                             // sin波
-            1->if( sin(r) > 0.0) 1.0 else -1.0    // 矩形波
-            2->if( sin(r) > 0.5) 1.0 else -1.0    // 矩形波
+            1->if( sin(r) > 0.5) 1.0 else -1.0    // 矩形波
+            2->if( sin(r) > 0.25) 1.0 else -1.0   // 矩形波
             3->(0..1000).random() / 10.0        // ノイズ
             else -> sin(r)
         }
@@ -194,7 +214,7 @@ class OSCObject(private var tone : Tone, var level: Int, private var func : Int)
      * 再生する
      */
     private fun playTone(){
-        if(tone == Tone.NONE
+        if(this.frequency == 0.0
                 || null == audioTrack
                 || AudioTrack.STATE_UNINITIALIZED == audioTrack?.state
                 || AudioTrack.PLAYSTATE_STOPPED == audioTrack?.playState
