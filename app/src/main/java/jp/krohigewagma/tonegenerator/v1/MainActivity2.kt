@@ -1,10 +1,13 @@
 package jp.krohigewagma.tonegenerator.v1
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.ServiceConnection
 import android.graphics.drawable.Drawable
 import android.media.AudioManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.UserHandle
 import android.view.MotionEvent
 import android.view.View
 import android.widget.*
@@ -87,7 +90,14 @@ class MainActivity2 : AppCompatActivity(){
      */
     @SuppressLint("ClickableViewAccessibility")
     private val touchListener = View.OnTouchListener { v, event ->
-        val osc = findViewById<Spinner>(R.id.oscSpinner).selectedItemPosition
+        var checkedId = findViewById<RadioGroup>(R.id.oscGroup).checkedRadioButtonId
+        var osc = when(checkedId){
+            R.id.osc_sin -> 0
+            R.id.osc_squea50 -> 1
+            R.id.osc_squea25 -> 2
+            R.id.osc_noise -> 3
+            else -> 0
+        }
         val level = findViewById<SeekBar>(R.id.oscLevel).progress
         var id = v.id
 
@@ -155,14 +165,6 @@ class MainActivity2 : AppCompatActivity(){
 
         setContentView(R.layout.activity_keyborad1)
 
-        //オシレータの選択用のアダプタ
-        var adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item)
-        adapter.add("sin")
-        adapter.add("Square 50%")
-        adapter.add("Square 25%")
-        adapter.add("Noise")
-        findViewById<Spinner>(R.id.oscSpinner).adapter = adapter
-
         // ボタンのIDの配列
         var ids = arrayListOf(
                 R.id.keyF0,
@@ -197,4 +199,36 @@ class MainActivity2 : AppCompatActivity(){
             key.setOnTouchListener(touchListener)
         }
     }
+
+    fun onRadioButtonClicked(view: View) {
+        if(view is RadioButton){
+            findViewById<RadioButton>(R.id.osc_sin).setBackgroundResource(if(view.id == R.id.osc_sin && view.isChecked){R.drawable.ic_button02_01}else{R.drawable.ic_button02_02})
+            findViewById<RadioButton>(R.id.osc_squea50).setBackgroundResource(if(view.id == R.id.osc_squea50 && view.isChecked){R.drawable.ic_button02_01}else{R.drawable.ic_button02_02})
+            findViewById<RadioButton>(R.id.osc_squea25).setBackgroundResource(if(view.id == R.id.osc_squea25 && view.isChecked){R.drawable.ic_button02_01}else{R.drawable.ic_button02_02})
+            findViewById<RadioButton>(R.id.osc_noise).setBackgroundResource(if(view.id == R.id.osc_noise && view.isChecked){R.drawable.ic_button02_01}else{R.drawable.ic_button02_02})
+        }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+
+        var decorView = window.decorView
+        decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or  View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+
+        window.decorView.setOnSystemUiVisibilityChangeListener { visibility ->
+            // Note that system bars will only be "visible" if none of the
+            // LOW_PROFILE, HIDE_NAVIGATION, or FULLSCREEN flags are set.
+            if (visibility and View.SYSTEM_UI_FLAG_FULLSCREEN == 0) {
+//                Log.d("debug","The system bars are visible")
+            } else {
+//                Log.d("debug","The system bars are NOT visible")
+            }
+        }
+    }
+
 }

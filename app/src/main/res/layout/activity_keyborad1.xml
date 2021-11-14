@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/ic_back"
+    android:background="@drawable/ic_body01"
     android:gravity="center"
     android:orientation="vertical">
 
@@ -12,30 +12,76 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="4dp">
+        android:paddingHorizontal="24dp"
+        android:paddingTop="24dp">
 
-        <LinearLayout
+        <RadioGroup
+            android:id="@+id/oscGroup"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:paddingVertical="4dp">
+            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/textView3"
+            <RadioButton
+                android:id="@+id/osc_sin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_button02_01"
+                android:button="@color/cardview_shadow_end_color"
+                android:focusable="auto"
+                android:minWidth="120dp"
+                android:onClick="onRadioButtonClicked"
+                android:text="sin"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <RadioButton
+                android:id="@+id/osc_squea50"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_button02_02"
+                android:button="@color/cardview_shadow_end_color"
+                android:focusable="auto"
+                android:minWidth="120dp"
+                android:onClick="onRadioButtonClicked"
+                android:text="Square 50%"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <RadioButton
+                android:id="@+id/osc_squea25"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_button02_02"
+                android:button="@color/cardview_shadow_end_color"
+                android:focusable="auto"
+                android:minWidth="120dp"
+                android:onClick="onRadioButtonClicked"
+                android:text="Square 50%"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <RadioButton
+                android:id="@+id/osc_noise"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="OSC"
-                android:textSize="24sp" />
-
-            <Spinner
-                android:id="@+id/oscSpinner"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
-
-        </LinearLayout>
+                android:background="@drawable/ic_button02_02"
+                android:button="@color/cardview_shadow_end_color"
+                android:focusable="auto"
+                android:minWidth="120dp"
+                android:onClick="onRadioButtonClicked"
+                android:text="Noise"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </RadioGroup>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -66,6 +112,7 @@
         android:layout_height="match_parent"
         android:gravity="bottom"
         android:paddingHorizontal="16dp"
+        android:paddingBottom="16dp"
         android:textAlignment="center">
 
         <TableRow

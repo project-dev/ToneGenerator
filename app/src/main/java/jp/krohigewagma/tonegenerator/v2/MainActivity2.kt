@@ -39,8 +39,14 @@ class MainActivity2 : AppCompatActivity(){
      */
     @SuppressLint("ClickableViewAccessibility")
     private val touchListener = View.OnTouchListener { v, event ->
-        val osc = findViewById<Spinner>(R.id.oscSpinner).selectedItemPosition
-
+        var checkedId = findViewById<RadioGroup>(R.id.oscGroup).checkedRadioButtonId
+        var osc = when(checkedId){
+            R.id.osc_sin -> 0
+            R.id.osc_squea50 -> 1
+            R.id.osc_squea25 -> 2
+            R.id.osc_noise -> 3
+            else -> 0
+        }
         val level = findViewById<SeekBar>(R.id.oscLevel).progress
 
         if(!keyMap.containsKey(v.id)){
@@ -84,13 +90,6 @@ class MainActivity2 : AppCompatActivity(){
         ToneGeneratorConfig.initialize(22050, 1, 8)
         ToneGenerator.start()
 
-        //オシレータの選択用のアダプタ
-        var adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item)
-        adapter.add("sin")
-        adapter.add("Square 50%")
-        adapter.add("Square 25%")
-        adapter.add("Noise")
-        findViewById<Spinner>(R.id.oscSpinner).adapter = adapter
 
         // ボタンのIDの配列
         var ids = arrayListOf(
