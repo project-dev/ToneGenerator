@@ -140,7 +140,17 @@ class Sequencer {
                         startTime = checkTime
                         tickCount++
                     }
+                    var isEnd = true
+                    for(i in 0..max){
+                        if(trackList[i].isPlay){
+                            isEnd = false
+                        }
+                    }
+                    if(isEnd){
+                        stop()
+                    }
                 }
+
             }
         }
 
